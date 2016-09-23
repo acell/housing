@@ -74,8 +74,10 @@ L.geoJson(smtr_data, {
         return L.circleMarker(latlng, {radius: 7, fillOpacity: .7});
     },
     onEachFeature: function (feature, layer) {
-        layer.bindPopup(feature.properties.address + "\n" + feature.properties.bedrooms
-            + "\n" + feature.properties.rent + "\n" + feature.properties.rent_per_person);
+        layer.bindPopup("Address: " + feature.properties.address + "\n"
+            + "Bedrooms: " + feature.properties.bedrooms + "\n"
+            + "Total rent: $" + feature.properties.rent + "\n"
+            + "Rent per Person: $" + feature.properties.rent_per_person);
     }
 }).addTo(housing_map);
 
