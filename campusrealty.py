@@ -89,6 +89,8 @@ for x in range(0, 200):
         bedrooms = (tree.xpath('/html/body/div[3]/div/p[1]/text()[1]'))
         bedrooms = int(bedrooms[0])
         entry["bedrooms"] = bedrooms
+        contact_link = ('http://www.campusrealty.com/view-unit.php?id=%s' % x)
+        entry["contact"] = str(contact_link)
         counterStart += 1
 
         bathrooms = tree.xpath('/html/body/div[3]/div/p[1]/text()[3]')
@@ -132,9 +134,9 @@ for x in range(0, 200):
 # print(results)
 # SHOW ME THE RENT
 
-for y in range (0, 22):
+for y in range (0, 29):
     page = requests.get('https://www.showmetherent.com/listings/48104/sw:42.263193001547734,-83.75272457462711/ne:42.28811194675993,-83.71870432410333/start:%d' % (y * 20))
-    for x in range(0, 21):
+    for x in range(1, 20):
         tree = html.fromstring(page.content)
         address = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[2]/h2/a/text()' % x))[2:-2]
         update_date = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[3]/p[1]/text()' % x))
@@ -142,6 +144,10 @@ for y in range (0, 22):
         house_type = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[3]/p[3]/text()' % x))
         lease_date = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[4]/a/text()' % x))
         rent = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[4]/p[1]/text()' % x))[2:-2]
+        try:
+            contact_link = "https://www.showmetherent.com" + str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[2]/h2/a/@href' % x))[2:-2]
+        except:
+            contact_link = "https://www.showmetherent.com"
 
         latlon = []
         location = ''
@@ -179,7 +185,10 @@ for y in range (0, 22):
                 entry["bedrooms"] = bedrooms[2:3].replace(" ", "")
 
             try:
-                entry["rent_per_person"] = (float(entry["rent"])/float(bedrooms[2]))
+                if (float(entry["rent"])/float(bedrooms[2])) > 350:
+                    entry["rent_per_person"] = (float(entry["rent"])/float(bedrooms[2]))
+                else:
+                    entry["rent_per_person"] = float(entry["rent"])
             except:
                 try:
                     entry["rent_per_person"] = float(entry["rent"])
@@ -191,7 +200,7 @@ for y in range (0, 22):
             entry["house_type"] = house_type[2:]
             entry["lease_date"] = lease_date
             entry["update"] = update_date
-
+            entry["contact"] = str(contact_link)
             resultInfo["geometry"] = addressInfo
             resultInfo["properties"] = entry
             resultInfo["updated"] = lease_date
@@ -200,74 +209,7 @@ for y in range (0, 22):
             pass
 
 
-
 # remove when editing
 geojson["features"] = results
 with open('housingsmtr.geojson', 'w') as outfile:
     json.dump(geojson, outfile)
-
-'''total_rent = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[4]/p[1]/' % x))
-total_rent = buyers.replace(',', '')
-print(total_rent)'''
-
-# CAMPUS MANAGEMENT
-'''
-universityPlacesPgCt = 0
-
-for iteration in range(0, 3):
-
-    page = requests.get('http://campusmgt.rentlinx.com/listings/start:%d' % universityPlacesPgCt)
-    tree = html.fromstring(page.content)
-
-    universityPlacesPgCt += 20
-
-    universityPlacesCounter = 0
-    for universityPlacesCounter in range(0, 20):
-        try:
-            entry = {}
-            latlon = []
-            resultInfo = {}
-            resultInfo["type"] = "Feature"
-
-            addressInfo = {}
-            addressInfo["type"] = "Point"
-
-            address = (tree.xpath('//*[@id="units_table"]/div[%d]/div[2]/div[1]/div[1]/h2/a/text()' % universityPlacesCounter))
-            address = str(address[0])
-            address = address.split('  ')
-            address = address[-1]
-            location = geolocator.geocode(address + ' Ann Arbor')
-            latlon.append(location.longitude)
-            latlon.append(location.latitude)
-            addressInfo["coordinates"] = latlon
-
-            totalRent = tree.xpath('//*[@id="units_table"]/div[%d]/div[2]/div[1]/div[2]/text()' % universityPlacesCounter)
-            totalRent = ((str(totalRent[0])).split('  '))[18][1:]
-            entry["rent"] = totalRent
-
-            bedrooms = tree.xpath('//*[@id="units_table"]/div[%d]/div[2]/p[4]/text()' % universityPlacesCounter)
-            bedrooms = str(bedrooms[1]).split(' ')
-            bedrooms = bedrooms[0].split('\r')[0]
-            entry["bedrooms"] = bedrooms
-
-            resultInfo["geometry"] = addressInfo
-            resultInfo["properties"] = entry
-            resultInfo["type"] = "Feature"
-
-            results.append(resultInfo)
-
-        except:
-            pass
-
-geojson["features"] = results
-print(geojson)
-print(data)
-print(counterStart)
-print(counterMid)
-print(counterMid2)
-print(counterMid3)
-print(counterEnd)
-print(latloncount)
-with open('housingstuff.geojson', 'w') as outfile:
-    json.dump(geojson, outfile)
-'''
