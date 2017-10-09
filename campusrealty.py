@@ -211,5 +211,5 @@ for y in range (0, 29):
 
 # remove when editing
 geojson["features"] = results
-with open('housingsmtr.geojson', 'w') as outfile:
+with open('housingsmtr_2017.geojson', 'w') as outfile:
     json.dump(geojson, outfile)
