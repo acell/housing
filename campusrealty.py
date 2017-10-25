@@ -135,7 +135,7 @@ for x in range(0, 200):
 # SHOW ME THE RENT
 
 for y in range (0, 29):
-    page = requests.get('https://www.showmetherent.com/listings/48104/sw:42.263193001547734,-83.75272457462711/ne:42.28811194675993,-83.71870432410333/start:%d' % (y * 20))
+    page = requests.get('https://www.showmetherent.com/listings/48104/sw:42.238796549095326,-83.76165096622867/ne:42.3195976088702,-83.68368540320483/start:%d' % (y * 20))
     for x in range(1, 20):
         tree = html.fromstring(page.content)
         address = str(tree.xpath('//*[@id="listing-list"]/div[1]/div[%d]/div[2]/h2/a/text()' % x))[2:-2]
